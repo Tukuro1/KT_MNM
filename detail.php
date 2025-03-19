@@ -20,7 +20,7 @@ if (isset($_GET['id'])) {
     <tr><th>Giới Tính</th><td><?php echo $row['GioiTinh']; ?></td></tr>
     <tr><th>Ngày Sinh</th><td><?php echo $row['NgaySinh']; ?></td></tr>
     <tr><th>Ngành Học</th><td><?php echo $row['TenNganh']; ?></td></tr>
-    <tr><th>Ảnh</th><td><img src="uploads/<?php echo $row['Hinh']; ?>" width="100"></td></tr>
+    <tr><th>Ảnh</th><td><img src="img/<?php echo $row['Hinh']; ?>" width="100"></td></tr>
 </table>
 <a href="index.php" class="btn btn-secondary">Quay lại</a>
 
