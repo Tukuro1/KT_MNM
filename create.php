@@ -1,7 +1,7 @@
-<?php 
-include 'config.php'; 
-include 'header.php'; 
+<?php include 'config.php'; ?>
+<?php include 'header.php'; ?>
 
+<?php 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $masv = $_POST['MaSV'];
     $hoten = $_POST['HoTen'];
@@ -9,38 +9,30 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $ngaysinh = $_POST['NgaySinh'];
     $manganh = $_POST['MaNganh'];
 
-    // Thư mục lưu ảnh
-    $target_dir = "img/"; 
-    $imagePath = "img/default.png"; // Ảnh mặc định
-
     // Xử lý upload hình ảnh
-    if (!empty($_FILES["HinhAnh"]["name"])) {
-        $file_name = time() . "_" . basename($_FILES["HinhAnh"]["name"]); // Đổi tên file tránh trùng lặp
-        $target_file = $target_dir . $file_name;
-        $imageFileType = strtolower(pathinfo($target_file, PATHINFO_EXTENSION));
-        $allowTypes = ['jpg', 'jpeg', 'png', 'gif'];
+    $target_dir = "uploads/"; // Thư mục lưu ảnh
+    $target_file = $target_dir . basename($_FILES["HinhAnh"]["name"]);
+    $imageFileType = strtolower(pathinfo($target_file, PATHINFO_EXTENSION));
 
-        // Kiểm tra định dạng file
-        if (in_array($imageFileType, $allowTypes)) {
-            if (move_uploaded_file($_FILES["HinhAnh"]["tmp_name"], $target_file)) {
-                $imagePath = $target_file;
-            } else {
-                echo "<script>alert('Lỗi khi tải ảnh lên!'); window.history.back();</script>";
-                exit;
-            }
-        } else {
-            echo "<script>alert('Chỉ chấp nhận file JPG, JPEG, PNG, GIF!'); window.history.back();</script>";
-            exit;
-        }
+    // Kiểm tra định dạng file
+    $allowTypes = ['jpg', 'jpeg', 'png', 'gif'];
+    if (!in_array($imageFileType, $allowTypes)) {
+        echo "<script>alert('Chỉ chấp nhận file JPG, JPEG, PNG, GIF!'); window.history.back();</script>";
+        exit;
+    }
+
+    // Di chuyển file upload vào thư mục
+    if (move_uploaded_file($_FILES["HinhAnh"]["tmp_name"], $target_file)) {
+        $imagePath = $target_file;
+    } else {
+        $imagePath = "uploads/default.png"; // Nếu lỗi thì dùng ảnh mặc định
     }
 
     // Chèn dữ liệu vào database
     $sql = "INSERT INTO SinhVien (MaSV, HoTen, GioiTinh, NgaySinh, MaNganh, HinhAnh) 
-            VALUES (?, ?, ?, ?, ?, ?)";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("ssssss", $masv, $hoten, $gioitinh, $ngaysinh, $manganh, $imagePath);
+            VALUES ('$masv', '$hoten', '$gioitinh', '$ngaysinh', '$manganh', '$imagePath')";
 
-    if ($stmt->execute()) {
+    if ($conn->query($sql) === TRUE) {
         echo "<script>alert('Thêm sinh viên thành công!'); window.location='index.php';</script>";
     } else {
         echo "Lỗi: " . $conn->error;
@@ -58,4 +50,27 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     
     <label>Giới Tính:</label>
     <select name="GioiTinh" class="form-control">
-        <option value="Nam">Nam
+        <option value="Nam">Nam</option>
+        <option value="Nữ">Nữ</option>
+    </select>
+    
+    <label>Ngày Sinh:</label>
+    <input type="date" name="NgaySinh" required class="form-control">
+
+    <label>Ngành Học:</label>
+    <select name="MaNganh" class="form-control">
+        <?php 
+        $result = $conn->query("SELECT * FROM NganhHoc");
+        while ($row = $result->fetch_assoc()) {
+            echo "<option value='{$row['MaNganh']}'>{$row['TenNganh']}</option>";
+        }
+        ?>
+    </select>
+
+    <label>Hình Ảnh:</label>
+    <input type="file" name="HinhAnh" accept="image/*" required class="form-control">
+
+    <button type="submit" class="btn btn-primary mt-3">Thêm</button>
+</form>
+
+<?php include 'footer.php'; ?>
