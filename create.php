@@ -25,7 +25,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (move_uploaded_file($_FILES["HinhAnh"]["tmp_name"], $target_file)) {
         $imagePath = $target_file;
     } else {
-        $imagePath = "uploads/default.png"; // Nếu lỗi thì dùng ảnh mặc định
+        $imagePath = "img/default.png"; // Nếu lỗi thì dùng ảnh mặc định
     }
 
     // Chèn dữ liệu vào database
